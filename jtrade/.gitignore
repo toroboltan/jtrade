@@ -1,0 +1,7 @@
+# generated artifacts & local state — never commit
+reports/
+state/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

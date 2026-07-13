@@ -1,0 +1,32 @@
+[project]
+name = "jtrade"
+version = "0.1.0"
+description = "On-demand stock/ETF screening & trade-proposal agent (IBKR-backed)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ib-async>=1.0.1",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "openpyxl>=3.1",
+    "pyyaml>=6.0",
+    "jinja2>=3.1",
+    "mcp>=1.2",
+]
+
+[project.optional-dependencies]
+fallback = ["yfinance>=0.2.40"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+jtrade = "jtrade.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["jtrade"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
