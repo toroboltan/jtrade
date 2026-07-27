@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from dataclasses import asdict
 from typing import Any
 
-from . import execute as execute_mod
+from . import dashboard, execute as execute_mod
 from . import queue, report, risk
 from .config import Settings, load_settings
 from .data.bars import BarProvider
@@ -85,6 +85,7 @@ def run_scan(settings: Settings | None = None, front_end: str = "cli",
             meta={"generated_at": result.generated_at.isoformat(),
                   "equity": equity, "cash": cash, "offline": ib is None},
         )
+        dash_paths = dashboard.render(result, proposals, equity, cash, settings)
 
     actionable = [p for p in proposals if not p.dropped and not p.reference_only]
     return {
@@ -98,6 +99,7 @@ def run_scan(settings: Settings | None = None, front_end: str = "cli",
         "equity": equity, "cash": cash, "offline": not connected,
         "report_markdown": str(report_paths["latest_md"]),
         "report_html": str(report_paths["latest_html"]),
+        "dashboard_html": str(dash_paths["latest_dashboard"]),
         "pending_orders": str(queue_path),
     }
 

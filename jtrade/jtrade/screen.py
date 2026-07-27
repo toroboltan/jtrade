@@ -98,13 +98,16 @@ def run_screen(
             agg["strength"] = max(agg["strength"], latest["strength"])
         computed[ticker] = agg
 
-    # Prices: live snapshot if connected, else last close from bars.
+    # Prices: one live snapshot per *unique* symbol (reused across sheets), else last
+    # close from bars. Symbols with no bars are unresolvable as US Stocks, so we skip the
+    # live snapshot for them — it would only re-issue a failing contract qualification.
     def price_change(ticker: str) -> tuple[float | None, float | None]:
-        if ib_client is not None and ib_client.is_connected():
+        df = bars_cache.get(ticker)
+        has_bars = df is not None and not df.empty
+        if ib_client is not None and ib_client.is_connected() and has_bars:
             snap = ib_client.snapshot(ticker)
             if snap["price"] is not None:
                 return snap["price"], snap["change_pct"]
-        df = bars_cache.get(ticker)
         if df is not None and len(df) >= 2:
             last, prev = df["Close"].iloc[-1], df["Close"].iloc[-2]
             chg = (last - prev) / prev * 100.0 if prev else None
@@ -113,13 +116,17 @@ def run_screen(
             return float(df["Close"].iloc[-1]), None
         return None, None
 
+    price_map: dict[str, tuple[float | None, float | None]] = {
+        ticker: price_change(ticker) for ticker in universe.all_tickers()
+    }
+
     rows: list[ScreenRow] = []
     by_sheet: dict[str, list[ScreenRow]] = {}
     for sheet, tickers in universe.by_sheet.items():
         sheet_rows: list[ScreenRow] = []
         for ticker in tickers:
             c = computed.get(ticker, {})
-            price, change = price_change(ticker)
+            price, change = price_map.get(ticker, (None, None))
             row = ScreenRow(
                 sheet=sheet,
                 ticker=ticker,

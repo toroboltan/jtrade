@@ -23,8 +23,10 @@ universe:
   header_row: 1
   # Sheets whose symbols are screened for monitoring but NEVER produce order proposals.
   monitor_only_sheets: ["indexes", "currencies"]
-  # Individual symbols that are non-tradable via plain US Stock/ETF (indices, spot crypto, forex).
-  monitor_only_symbols: ["VIX", "LTC", "ETH", "BTC", "XRP", "DOGE"]
+  # Individual symbols that are non-tradable via plain US Stock/ETF (indices, spot crypto,
+  # forex), plus tickers IBKR SMART can't resolve as a US listing (delisted/renamed/wrong
+  # ticker) — surfaced by the 2026-07-13 scan as "No security definition".
+  monitor_only_symbols: ["VIX", "LTC", "ETH", "BTC", "XRP", "DOGE", "IWW", "SPVU", "SPMV", "FM"]
 
 criteria:
   enabled: ["stage_analysis"]

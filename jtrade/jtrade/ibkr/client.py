@@ -51,6 +51,7 @@ class IBKRClient:
         self.client_id = int(
             ib["client_id_mcp"] if front_end == "mcp" else ib["client_id_cli"]
         )
+        self._contract_cache: dict[str, object] = {}  # symbol -> qualified Contract | None
 
     # ---- lifecycle ----
     def connect(self) -> "IBKRClient":
@@ -81,12 +82,22 @@ class IBKRClient:
 
     # ---- contracts ----
     def qualify(self, symbol: str):
-        """Return a qualified Contract for a US Stock/ETF, or None if IBKR can't map it."""
-        c = contracts.resolve(symbol)
-        if c is None:
-            return None
-        qualified = self.ib.qualifyContracts(c)
-        return qualified[0] if qualified else None
+        """Return a qualified Contract for a US Stock/ETF, or None if IBKR can't map it.
+
+        Results (including None for unresolvable symbols) are memoized for the client's
+        lifetime so the same contract isn't re-qualified across the bars and snapshot
+        phases of a single scan.
+        """
+        sym = symbol.strip().upper()
+        if sym in self._contract_cache:
+            return self._contract_cache[sym]
+        c = contracts.resolve(sym)
+        qualified = None
+        if c is not None:
+            res = self.ib.qualifyContracts(c)
+            qualified = res[0] if res else None
+        self._contract_cache[sym] = qualified
+        return qualified
 
     # ---- historical bars ----
     def daily_bars(self, symbol: str, years: int | None = None) -> pd.DataFrame:
