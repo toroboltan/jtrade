@@ -69,7 +69,7 @@ def run_scan(settings: Settings | None = None, front_end: str = "cli",
     with _maybe_client(settings, front_end, require=not offline) as ib:
         connected = ib is not None
         provider = BarProvider(settings, ib_client=ib)
-        result = run_screen(settings, provider, ib_client=ib, universe=universe)
+        result = run_screen(settings, provider, universe=universe)
         report_paths = report.render(result, settings)
 
         if connected:

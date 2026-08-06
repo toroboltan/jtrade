@@ -100,16 +100,23 @@ class IBKRClient:
         return qualified
 
     # ---- historical bars ----
-    def daily_bars(self, symbol: str, years: int | None = None) -> pd.DataFrame:
-        """Daily OHLCV as a DataFrame indexed by date. Empty frame if unavailable."""
-        years = years or int(self.settings.data.get("history_years", 5))
+    def daily_bars(self, symbol: str, years: int | None = None,
+                    duration: str | None = None) -> pd.DataFrame:
+        """Daily OHLCV as a DataFrame indexed by date. Empty frame if unavailable.
+
+        `duration`, if given, is used directly as IBKR's `durationStr` (e.g. "5 D")
+        for an incremental fetch; otherwise falls back to the full `years`-sized window.
+        """
         contract = self.qualify(symbol)
         if contract is None:
             return pd.DataFrame()
+        if duration is None:
+            years = years or int(self.settings.data.get("history_years", 5))
+            duration = f"{years} Y"
         bars = self.ib.reqHistoricalData(
             contract,
             endDateTime="",
-            durationStr=f"{years} Y",
+            durationStr=duration,
             barSizeSetting="1 day",
             whatToShow="TRADES",
             useRTH=True,

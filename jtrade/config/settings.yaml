@@ -14,7 +14,7 @@ data:
   source_order: ["ibkr", "yfinance"]   # try IBKR first, fall back to yfinance if enabled/available
   yfinance_fallback: true
   history_years: 5                     # daily bars lookback for stage analysis
-  cache_dir: "state/bars_cache"        # parquet cache; same-day bars reused
+  db_path: "state/bars.db"             # SQLite store of daily bars; incremental fetch vs. latest stored date
   hist_pacing_sleep: 1.0               # seconds between historical requests (IBKR ~50 req / 10 min)
 
 universe:

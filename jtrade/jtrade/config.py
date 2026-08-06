@@ -2,7 +2,7 @@
 
 The project root is the directory that contains ``config/settings.yaml`` (i.e. the
 ``jtrade/`` project directory), located by walking up from this file. All path-like
-settings (workbook, cache dir, report dir, state files) are resolved to absolute
+settings (workbook, bars DB, report dir, state files) are resolved to absolute
 paths so the CLI and MCP server behave identically regardless of cwd.
 """
 
@@ -67,8 +67,8 @@ class Settings:
         return _resolve(self.universe["workbook"])
 
     @property
-    def cache_dir(self) -> Path:
-        return _resolve(self.data["cache_dir"])
+    def db_path(self) -> Path:
+        return _resolve(self.data["db_path"])
 
     @property
     def report_dir(self) -> Path:

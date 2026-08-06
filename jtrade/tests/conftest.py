@@ -2,18 +2,27 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from jtrade.config import load_settings
+from jtrade.config import Settings, load_settings
 
 
 @pytest.fixture
 def settings():
     return load_settings()
+
+
+@pytest.fixture
+def settings_tmp_db(settings, tmp_path):
+    """Settings with data.db_path redirected to a throwaway SQLite file per test."""
+    raw = copy.deepcopy(settings.raw)
+    raw["data"]["db_path"] = str(tmp_path / "bars_test.db")
+    return Settings(raw=raw, path=settings.path)
 
 
 def make_bars(symbol="SYM", start=100.0, end=100.0, n=400, seed=None, noise=0.8) -> pd.DataFrame:
