@@ -1,7 +1,8 @@
 """Render the screen result as Markdown + HTML, organized by sheet/angle.
 
-Columns per row: TKT | Price | Change | Stage | Signal. Buy/Sell rows are visually
-flagged. Files are written to ``report.out_dir`` timestamped, plus stable
+Columns per row: TKT | Price | Change | Stage | Signal | Moving Average Road Map
+(% distance to 5/10/20-day EMA and 50/100/200/250-day SMA). Buy/Sell rows are
+visually flagged. Files are written to ``report.out_dir`` timestamped, plus stable
 ``latest.md`` / ``latest.html`` copies. The workbook is never modified.
 """
 
@@ -13,6 +14,7 @@ from jinja2 import Environment
 
 from .config import Settings
 from .criteria.stage_analysis import STAGE_DESCRIPTIONS
+from .indicators import MA_ROADMAP
 from .screen import ScreenResult, ScreenRow
 
 
@@ -27,6 +29,12 @@ def _fmt_change(v) -> str:
     return f"{sign}{v:.2f}%"
 
 
+def _ma_class(v) -> str:
+    if v is None:
+        return ""
+    return " up" if v >= 0 else " down"
+
+
 def _stage_label(stage) -> str:
     if stage is None:
         return "—"
@@ -37,13 +45,21 @@ _MD_TEMPLATE = """# jtrade scan — {{ generated_at }}
 
 **Universe:** {{ n_symbols }} symbols across {{ n_sheets }} sheets ·
 **Buy:** {{ n_buy }} · **Sell:** {{ n_sell }}
+
+## Moving Average Road Map
+
+| Metric | Label |
+|-----|-----|
+{% for key, label, kind, period, desc in ma_roadmap -%}
+| {{ period }}-day {{ 'EMA' if kind == 'ema' else 'SMA' }} | {{ desc }} |
+{% endfor %}
 {% for sheet, rows in by_sheet.items() %}
 ## {{ sheet }}
 
-| TKT | Price | Change | Stage | Signal |
-|-----|------:|-------:|-------|--------|
+| TKT | Price | Change | Stage | Signal |{% for key, label, kind, period, desc in ma_roadmap %} {{ label }} |{% endfor %}{{ "" }}
+|-----|------:|-------:|-------|--------|{% for _ in ma_roadmap %}------:|{% endfor %}{{ "" }}
 {% for r in rows -%}
-| {{ r.ticker }}{% if not r.tradable %} ᵐ{% endif %} | {{ price(r.price) }} | {{ change(r.change_pct) }} | {{ stage(r.stage) }} | {{ signal_md(r) }} |
+| {{ r.ticker }}{% if not r.tradable %} ᵐ{% endif %} | {{ price(r.price) }} | {{ change(r.change_pct) }} | {{ stage(r.stage) }} | {{ signal_md(r) }} |{% for key, label, kind, period, desc in ma_roadmap %} {{ ma(r.ma_diffs.get(key)) }} |{% endfor %}{{ "" }}
 {% endfor %}
 {% endfor %}
 > ᵐ = monitor-only (no order proposals). Signals: **Buy** = Stage 1→2, **Sell** = Stage 3→4.
@@ -63,13 +79,22 @@ _HTML_TEMPLATE = """<!doctype html>
   .up{color:#0a7d33}.down{color:#c0392b}.mon{color:#999}
   .badge{display:inline-block;padding:.05rem .4rem;border-radius:.4rem;font-size:12px}
   .badge.buy{background:#0a7d33;color:#fff}.badge.sell{background:#c0392b;color:#fff}
+  .roadmap{width:auto;margin-bottom:1.5rem}
 </style>
 <h1>jtrade scan</h1>
 <div class="meta">{{ generated_at }} · {{ n_symbols }} symbols / {{ n_sheets }} sheets ·
   Buy {{ n_buy }} · Sell {{ n_sell }}</div>
+
+<h2>Moving Average Road Map</h2>
+<table class="roadmap"><thead><tr><th>Metric</th><th>Label</th></tr></thead>
+<tbody>
+{% for key, label, kind, period, desc in ma_roadmap %}
+<tr><td>{{ period }}-day {{ 'EMA' if kind == 'ema' else 'SMA' }}</td><td>{{ desc }}</td></tr>
+{% endfor %}
+</tbody></table>
 {% for sheet, rows in by_sheet.items() %}
 <h2>{{ sheet }}</h2>
-<table><thead><tr><th>TKT</th><th>Price</th><th>Change</th><th>Stage</th><th>Signal</th></tr></thead>
+<table><thead><tr><th>TKT</th><th>Price</th><th>Change</th><th>Stage</th><th>Signal</th>{% for key, label, kind, period, desc in ma_roadmap %}<th title="{{ desc }}">{{ label }}</th>{% endfor %}</tr></thead>
 <tbody>
 {% for r in rows %}
 <tr class="{{ 'buy' if r.signal=='Buy' else 'sell' if r.signal=='Sell' else '' }}">
@@ -78,6 +103,7 @@ _HTML_TEMPLATE = """<!doctype html>
   <td class="num {{ 'up' if (r.change_pct or 0)>=0 else 'down' }}">{{ change(r.change_pct) }}</td>
   <td>{{ stage(r.stage) }}</td>
   <td>{% if r.signal=='Buy' %}<span class="badge buy">Buy</span>{% elif r.signal=='Sell' %}<span class="badge sell">Sell</span>{% else %}Hold{% endif %}</td>
+  {% for key, label, kind, period, desc in ma_roadmap %}<td class="num{{ ma_cls(r.ma_diffs.get(key)) }}">{{ ma(r.ma_diffs.get(key)) }}</td>{% endfor %}
 </tr>
 {% endfor %}
 </tbody></table>
@@ -105,6 +131,9 @@ def render(result: ScreenResult, settings: Settings) -> dict[str, Path]:
         "n_sell": len(result.signals("Sell")),
         "price": _fmt_price,
         "change": _fmt_change,
+        "ma": _fmt_change,
+        "ma_cls": _ma_class,
+        "ma_roadmap": MA_ROADMAP,
         "stage": _stage_label,
         "signal_md": _signal_md,
     }

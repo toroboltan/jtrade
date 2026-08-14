@@ -18,11 +18,17 @@ from pathlib import Path
 
 from .config import Settings
 from .criteria.stage_analysis import STAGE_DESCRIPTIONS
-from .report import _fmt_change, _fmt_price
+from .indicators import MA_ROADMAP
+from .report import _fmt_change, _fmt_price, _ma_class
 from .risk import Proposal
 from .screen import ScreenResult, ScreenRow
 
 STAGE_SHORT = {s: d.split(" (")[0] for s, d in STAGE_DESCRIPTIONS.items()}
+
+_MA_TH = "".join(
+    f'<th class="num" title="{html.escape(desc)}">{html.escape(label)}</th>'
+    for _key, label, _kind, _period, desc in MA_ROADMAP
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -50,6 +56,22 @@ def _meter(counts: dict[int, int], total: int) -> str:
 
 def _money(x: float) -> str:
     return f"${x:,.2f}"
+
+
+def _roadmap_legend() -> str:
+    items = "".join(
+        f'<div class="rm__item"><span class="rm__metric mono">{html.escape(label)}</span>'
+        f'<span class="rm__desc">{html.escape(desc)}</span></div>'
+        for _key, label, _kind, _period, desc in MA_ROADMAP
+    )
+    return f"""
+      <section class="mix">
+        <div class="mix__head">
+          <span class="mix__title">Moving Average Road Map</span>
+          <span class="mix__total">% distance from price</span>
+        </div>
+        <div class="rm">{items}</div>
+      </section>"""
 
 
 # --------------------------------------------------------------------------- #
@@ -122,6 +144,10 @@ def _row(r: ScreenRow) -> str:
     mon = ('<span class="montag" title="monitor-only — no order proposals">M</span>'
            if monitor else "")
     tkr = html.escape(r.ticker)
+    ma_cells = "".join(
+        f'<td class="num mono{_ma_class(r.ma_diffs.get(key))}">{_fmt_change(r.ma_diffs.get(key))}</td>'
+        for key, *_rest in MA_ROADMAP
+    )
     return (
         f'<tr class="{" ".join(cls)}" data-signal="{r.signal}" '
         f'data-stage="{r.stage or 0}" data-mon="{int(monitor)}" data-tkr="{tkr}">'
@@ -129,7 +155,7 @@ def _row(r: ScreenRow) -> str:
         f'<td class="num mono">{price}</td>'
         f'<td class="num mono{chg_cls}">{change}</td>'
         f'<td class="c-stage">{stage_cell}</td>'
-        f'<td class="c-sig">{sig}</td></tr>'
+        f'<td class="c-sig">{sig}</td>{ma_cells}</tr>'
     )
 
 
@@ -152,7 +178,7 @@ def _panel(name: str, rows: list[ScreenRow]) -> str:
         </div>
         <div class="tablewrap">
           <table>
-            <thead><tr><th>Ticker</th><th class="num">Price</th><th class="num">Chg</th><th>Stage</th><th>Signal</th></tr></thead>
+            <thead><tr><th>Ticker</th><th class="num">Price</th><th class="num">Chg</th><th>Stage</th><th>Signal</th>{_MA_TH}</tr></thead>
             <tbody>
 {body}
             </tbody>
@@ -206,6 +232,7 @@ def render(result: ScreenResult, proposals: list[Proposal], equity: float,
             .replace("{{G3}}", str(gcounts[3]))
             .replace("{{G4}}", str(gcounts[4]))
             .replace("{{METER}}", _meter(gcounts, gtotal))
+            .replace("{{ROADMAP}}", _roadmap_legend())
             .replace("{{CARDS}}", cards)
             .replace("{{PANELS}}", panels))
 
@@ -273,6 +300,8 @@ _PAGE = """<title>jtrade scan — {{DATE}}</title>
       <li><span class="dot s4"></span>4 · Decline <b class="mono">{{G4}}</b></li>
     </ul>
   </section>
+
+  {{ROADMAP}}
 
   <section class="signals">
     <div class="section-head">
@@ -431,6 +460,11 @@ main{max-width:1160px; margin:0 auto; padding:clamp(1.2rem,3vw,2.6rem) clamp(1re
 .legend b{color:var(--text); font-weight:600}
 .dot{width:.6rem; height:.6rem; border-radius:50%; flex:none}
 .dot.s1{background:var(--s1)} .dot.s2{background:var(--s2)} .dot.s3{background:var(--s3)} .dot.s4{background:var(--s4)}
+
+.rm{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.5rem .8rem}
+.rm__item{display:flex; align-items:baseline; justify-content:space-between; gap:.6rem; padding:.45rem .7rem; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; font-size:.82rem}
+.rm__metric{color:var(--text); font-weight:600; white-space:nowrap}
+.rm__desc{color:var(--muted); text-align:right}
 
 .section-head{display:flex; flex-direction:column; gap:.2rem; margin-bottom:1.1rem}
 .section-head h2{font-size:1.35rem; font-weight:640}

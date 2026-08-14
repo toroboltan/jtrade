@@ -20,6 +20,7 @@ from .config import Settings
 from .criteria.base import Criterion
 from .criteria.registry import load_enabled
 from .data.bars import BarProvider
+from .indicators import ma_pct_diffs
 from .universe import Universe, load_universe
 
 
@@ -34,6 +35,7 @@ class ScreenRow:
     strength: float
     tradable: bool
     bars: pd.DataFrame = field(default=None, repr=False)  # raw daily OHLCV for sizing
+    ma_diffs: dict[str, float | None] = field(default_factory=dict)
     error: str | None = None
 
 
@@ -115,6 +117,13 @@ def run_screen(
         ticker: price_change(ticker) for ticker in universe.all_tickers()
     }
 
+    # Moving Average Road Map: % distance from price to each EMA/SMA, once per
+    # unique symbol (display-only — does not feed Stage/Signal).
+    ma_map: dict[str, dict[str, float | None]] = {
+        ticker: ma_pct_diffs(df["Close"]) if (df := bars_cache.get(ticker)) is not None and not df.empty else {}
+        for ticker in universe.all_tickers()
+    }
+
     rows: list[ScreenRow] = []
     by_sheet: dict[str, list[ScreenRow]] = {}
     for sheet, tickers in universe.by_sheet.items():
@@ -132,6 +141,7 @@ def run_screen(
                 strength=float(c.get("strength", 0.0) or 0.0),
                 tradable=universe.symbols[ticker].tradable,
                 bars=bars_cache.get(ticker),
+                ma_diffs=ma_map.get(ticker, {}),
                 error=c.get("error"),
             )
             sheet_rows.append(row)
