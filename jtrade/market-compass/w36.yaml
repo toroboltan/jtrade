@@ -1,0 +1,102 @@
+source:
+  title: "August Breakout Meets Tight Consolidation"
+  author: "C.E. Kirk — Kirk's Opportunities"
+  published: "2026-08-30"
+  url: "https://kirksopportunities.com/p/august-breakout-meets-tight-consolidation"
+  week_label: "w36"
+
+map:
+  breakdown_target: 7460
+  range_low: 7638
+  range_high: 7816
+  breakout_target: "7994–8003"
+
+scenarios:
+  - name: Bull
+    probability: 40
+    summary: >-
+      Clears 7816 with MAGS finally breaking its 10-month range, better
+      equal-weight/small-cap participation, and stable-or-falling yields.
+      Targets 7994–8003.
+  - name: Base
+    probability: 40
+    summary: >-
+      Stays inside the 7638–7816 box while leadership keeps rotating
+      (hardware → software → cybersecurity → mega-caps). Rates remain
+      sticky, MAGS improves but doesn't break out.
+  - name: Bear
+    probability: 20
+    summary: >-
+      Loses 7638 on strong jobs data pushing short-term yields higher,
+      semiconductors keep weakening, small caps lose support, and MAGS
+      rolls over. Puts the 7460 measured-move target in play.
+
+decision_map:
+  - condition: "Jobs Strong + yields higher"
+    read: "Toughest combo — small caps, speculative growth and expensive tech could get hit. A break of 7638 wouldn't be a surprise."
+  - condition: "Jobs Moderate + yields stable"
+    read: "What the market wants. If MAGS follows through and the S&P clears 7816, the 7994–8003 zone gets very interesting."
+  - condition: "Jobs Soft + yields lower"
+    read: "Initially good for tech/duration-sensitive assets, but participation still needs to improve — falling yields alone aren't enough."
+  - condition: "Jobs Very Weak"
+    read: "Careful — bad news is bullish until it becomes bad news (recession fear regime change)."
+
+watchlist:
+  - ticker: IGV
+    thesis: "Software broadening vs. semis (+5.9% vs -2.3% last week)"
+    status: "NEAR ACTIONABLE"
+  - ticker: MU
+    thesis: "Memory bottleneck for AI infrastructure"
+    status: "NEAR ACTIONABLE"
+  - ticker: AVGO
+    thesis: "AI infrastructure catalyst — reports Wed 2026-09-02"
+    status: "CATALYST WATCH"
+  - ticker: PANW
+    thesis: "AI cybersecurity catalyst — reports Tue 2026-09-01, FY2027 outlook / NGS ARR"
+    status: "CATALYST WATCH"
+  - ticker: NVDA
+    thesis: "Outstanding business — wait for price"
+    status: "WATCH"
+  - ticker: CRWD
+    thesis: "AI/cybersecurity monetization — Fal.Con this week"
+    status: "WATCH"
+  - ticker: SOXX
+    thesis: "Semiconductor reset — needs stabilization, not a rip"
+    status: "WATCH"
+  - ticker: MRVL
+    thesis: "Good story, broken stock — needs a real base"
+    status: "WATCH — DO NOT CATCH THE FALL"
+
+validation:
+  as_of: "2026-08-31"
+  concluded_scenario: "Base"
+  concluded_note: >-
+    No trigger level was touched today. The mixed cross-currents below —
+    sticky yields, semis actually firming, small caps and MAGS still soft —
+    match the newsletter's own Base Case description almost exactly.
+    Nothing shifts meaningful weight toward the bull or bear case yet;
+    PANW (Tue), AVGO (Wed) and the August jobs report (Fri) are the real
+    resolution points still ahead this week.
+  premises:
+    - label: "S&P 500 vs the map (7638 / 7816)"
+      lean: neutral
+      detail: "Closed 7,686.14 (-0.33%) — inside the box, roughly mid-range. No level touched."
+    - label: "MAGS follow-through (bull) vs. rollover (bear)"
+      lean: bearish
+      detail: "Closed 68.57 (-0.72%) — gave back part of last week's +2.66% stir. Leans against the bull condition, but not itself a range breakdown."
+    - label: "2-year Treasury yield direction"
+      lean: neutral
+      detail: "4.344%, essentially flat vs. Friday's 4.35% close — sticky, matching the Base Case rather than the bear's sharp-jump or the bull's falling-yields condition."
+    - label: "Small-cap participation (Russell 2000)"
+      lean: bearish
+      detail: "-0.54% — still not stabilizing, the recurring concern, though not yet a break of intermediate-term support either."
+    - label: "Semiconductors 'keep weakening' (bear premise)"
+      lean: bullish
+      detail: "SMH +0.64%, SOXX +0.48% (today's jtrade scan) — semis actually firmed today, contradicting this specific bear condition."
+    - label: "IGV pullback holds support (watchlist trigger)"
+      lean: neutral
+      detail: "-0.30% — an orderly pullback after last week's +7.7% single-day move; matches the newsletter's own 'NEAR ACTIONABLE' setup criteria rather than a breakdown."
+  next_catalysts:
+    - "PANW earnings + FY2027 outlook — Tue 2026-09-01"
+    - "AVGO earnings — Wed 2026-09-02"
+    - "August employment report — Fri 2026-09-04"

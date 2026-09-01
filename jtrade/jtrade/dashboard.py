@@ -16,6 +16,8 @@ from __future__ import annotations
 import html
 from pathlib import Path
 
+import yaml
+
 from .config import Settings
 from .criteria.stage_analysis import STAGE_DESCRIPTIONS
 from .indicators import MA_ROADMAP
@@ -56,6 +58,86 @@ def _meter(counts: dict[int, int], total: int) -> str:
 
 def _money(x: float) -> str:
     return f"${x:,.2f}"
+
+
+def _load_compass(settings: Settings) -> dict | None:
+    path = settings.market_compass_file
+    if not path.exists():
+        return None
+    with path.open("r", encoding="utf-8") as fh:
+        return yaml.safe_load(fh) or None
+
+
+_LEAN_ICON = {"bullish": "▲", "bearish": "▼", "neutral": "●"}
+_SCENARIO_STAGE = {"Bull": "s2", "Base": "s3", "Bear": "s4"}
+
+
+def _compass(data: dict) -> str:
+    src = data.get("source", {})
+    m = data.get("map", {})
+    val = data.get("validation", {})
+    concluded = val.get("concluded_scenario", "")
+
+    scenario_cards = "".join(
+        f"""
+        <div class="compass__scenario{' is-lead' if sc.get('name') == concluded else ''}">
+          <div class="compass__sc-head">
+            <span class="compass__sc-name"><span class="dot {_SCENARIO_STAGE.get(sc.get('name'), 's1')}"></span>{html.escape(sc.get('name', ''))}</span>
+            <span class="compass__sc-pct mono">{sc.get('probability', 0)}%</span>
+          </div>
+          <div class="compass__sc-bar"><span class="{_SCENARIO_STAGE.get(sc.get('name'), 's1')}" style="width:{sc.get('probability', 0)}%"></span></div>
+          <p class="compass__sc-summary">{html.escape(str(sc.get('summary', '')).strip())}</p>
+        </div>"""
+        for sc in data.get("scenarios", [])
+    )
+
+    premise_items = "".join(
+        f"""
+        <li class="lean-{p.get('lean', 'neutral')}">
+          <span class="compass__lean-icon">{_LEAN_ICON.get(p.get('lean', 'neutral'), '●')}</span>
+          <div><b>{html.escape(p.get('label', ''))}</b><p>{html.escape(p.get('detail', ''))}</p></div>
+        </li>"""
+        for p in val.get("premises", [])
+    )
+
+    watch_rows = "".join(
+        f"""<tr><td class="c-tkr"><span class="tkrname">{html.escape(w.get('ticker', ''))}</span></td>
+            <td>{html.escape(w.get('thesis', ''))}</td>
+            <td><span class="pill pill--watch">{html.escape(w.get('status', ''))}</span></td></tr>"""
+        for w in data.get("watchlist", [])
+    )
+
+    catalysts = "".join(
+        f"<li>{html.escape(c)}</li>" for c in val.get("next_catalysts", [])
+    )
+
+    src_line = f"{html.escape(src.get('title', ''))} — {html.escape(src.get('published', ''))}"
+    src_url = src.get("url")
+    if src_url:
+        src_line = f'<a href="{html.escape(src_url)}" target="_blank" rel="noopener">{src_line}</a>'
+
+    return f"""
+      <section class="compass">
+        <div class="section-head">
+          <h2>Market Compass</h2>
+          <p>{src_line} &nbsp;·&nbsp; validated {html.escape(val.get('as_of', ''))}</p>
+        </div>
+        <p class="compass__map mono">{m.get('breakdown_target', '—')} &larr; {m.get('range_low', '—')} — chop — {m.get('range_high', '—')} &rarr; {html.escape(str(m.get('breakout_target', '—')))}</p>
+        <div class="compass__scenarios">{scenario_cards}</div>
+        <p class="compass__conclusion"><b>Most probable now: {html.escape(concluded)}.</b> {html.escape(val.get('concluded_note', '').strip())}</p>
+        <div class="compass__grid">
+          <div class="compass__premises">
+            <h3>Premise checklist</h3>
+            <ul>{premise_items}</ul>
+          </div>
+          <div class="compass__side">
+            <h3>Watchlist</h3>
+            <table><tbody>{watch_rows}</tbody></table>
+            <h3>Next catalysts</h3>
+            <ul class="compass__catalysts">{catalysts}</ul>
+          </div>
+        </div>
+      </section>"""
 
 
 def _roadmap_legend() -> str:
@@ -212,6 +294,9 @@ def render(result: ScreenResult, proposals: list[Proposal], equity: float,
 
     panels = "".join(_panel(name, rows) for name, rows in result.by_sheet.items())
 
+    compass_data = _load_compass(settings)
+    compass_html = _compass(compass_data) if compass_data else ""
+
     date_part = result.generated_at.strftime("%Y-%m-%d")
     time_part = result.generated_at.strftime("%H:%M:%S")
 
@@ -232,6 +317,7 @@ def render(result: ScreenResult, proposals: list[Proposal], equity: float,
             .replace("{{G3}}", str(gcounts[3]))
             .replace("{{G4}}", str(gcounts[4]))
             .replace("{{METER}}", _meter(gcounts, gtotal))
+            .replace("{{COMPASS}}", compass_html)
             .replace("{{ROADMAP}}", _roadmap_legend())
             .replace("{{CARDS}}", cards)
             .replace("{{PANELS}}", panels))
@@ -286,6 +372,8 @@ _PAGE = """<title>jtrade scan — {{DATE}}</title>
       <div class="kpi kpi--sell"><span class="kpi__n mono">{{N_SELL}}</span><span class="kpi__l">Sell signals</span></div>
     </div>
   </section>
+
+  {{COMPASS}}
 
   <section class="mix">
     <div class="mix__head">
@@ -498,7 +586,33 @@ main{max-width:1160px; margin:0 auto; padding:clamp(1.2rem,3vw,2.6rem) clamp(1re
 .pill{display:inline-block; padding:.12rem .5rem; border-radius:6px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase}
 .pill--buy{background:var(--s2); color:#fff}
 .pill--sell{background:var(--s4); color:#fff}
+.pill--watch{background:var(--panel-2); color:var(--muted); border:1px solid var(--border)}
 .hold{font-size:.78rem; color:var(--faint)}
+
+.compass{margin-bottom:2rem; padding:1.2rem 1.3rem 1.4rem; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+.compass__map{margin:0 0 1rem; color:var(--muted); font-size:.82rem}
+.compass__scenarios{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.8rem; margin-bottom:1rem}
+.compass__scenario{padding:.8rem .9rem; background:var(--panel-2); border:1px solid var(--border); border-radius:10px; opacity:.72}
+.compass__scenario.is-lead{opacity:1; border-color:color-mix(in srgb, var(--accent) 45%, var(--border))}
+.compass__sc-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.4rem; font-weight:600}
+.compass__sc-bar{height:6px; border-radius:4px; background:var(--bg); overflow:hidden; margin-bottom:.5rem}
+.compass__sc-bar span{display:block; height:100%}
+.compass__sc-summary{margin:0; font-size:.78rem; color:var(--muted); line-height:1.4}
+.compass__conclusion{margin:0 0 1.1rem; font-size:.88rem; line-height:1.5}
+.compass__grid{display:grid; grid-template-columns:1.4fr 1fr; gap:1.4rem}
+.compass__premises h3, .compass__side h3{font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin:0 0 .6rem}
+.compass__premises ul{list-style:none; margin:0 0 0; padding:0; display:flex; flex-direction:column; gap:.6rem}
+.compass__premises li{display:flex; gap:.55rem; align-items:flex-start; font-size:.84rem}
+.compass__premises li p{margin:.1rem 0 0; color:var(--muted); font-size:.8rem; line-height:1.4}
+.compass__lean-icon{flex:none; font-size:.7rem; line-height:1.6}
+.lean-bullish .compass__lean-icon{color:var(--up)}
+.lean-bearish .compass__lean-icon{color:var(--down)}
+.lean-neutral .compass__lean-icon{color:var(--faint)}
+.compass__side table{margin-bottom:1.1rem}
+.compass__side td{padding:.35rem .5rem; border-bottom:1px solid var(--border); font-size:.8rem; vertical-align:top}
+.compass__side td:nth-child(2){color:var(--muted)}
+.compass__catalysts{margin:0; padding-left:1.1rem; font-size:.8rem; color:var(--muted); display:flex; flex-direction:column; gap:.3rem}
+@media (max-width:820px){.compass__grid{grid-template-columns:1fr}}
 .montag{display:inline-grid; place-items:center; width:1.05rem; height:1.05rem; margin-left:.4rem; border-radius:4px; background:var(--panel-2); border:1px solid var(--border); color:var(--faint); font-size:.6rem; font-weight:700; vertical-align:middle}
 
 .controls{position:sticky; top:56px; z-index:10; display:flex; flex-wrap:wrap; gap:.7rem; align-items:center; margin-bottom:1rem; padding:.6rem; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(6px); border-radius:11px}

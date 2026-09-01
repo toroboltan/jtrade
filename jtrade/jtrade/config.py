@@ -75,6 +75,14 @@ class Settings:
         return _resolve(self.report["out_dir"])
 
     @property
+    def market_compass_file(self) -> Path:
+        """Curated weekly newsletter-scenario data for the dashboard's Market Compass
+        section. Overridable via report.market_compass_file; missing file is fine —
+        the section just doesn't render."""
+        override = self.report.get("market_compass_file")
+        return _resolve(override) if override else self.project_root / "market-compass" / "current.yaml"
+
+    @property
     def pending_orders_path(self) -> Path:
         return _resolve(self.execute["pending_orders"])
 
