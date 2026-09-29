@@ -72,6 +72,9 @@ def upsert_bars(conn: sqlite3.Connection, symbol: str, df: pd.DataFrame) -> int:
     if df is None or df.empty:
         return 0
     symbol = symbol.upper()
+    df = df.dropna(subset=_OHLCV)
+    if df.empty:
+        return 0
     rows = [
         (symbol, idx.strftime("%Y-%m-%d"), float(row["Open"]), float(row["High"]),
          float(row["Low"]), float(row["Close"]), float(row["Volume"]))

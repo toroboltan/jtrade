@@ -80,7 +80,14 @@ def run_screen(
     computed: dict[str, dict] = {}
     bars_cache: dict[str, pd.DataFrame] = {}
     for ticker in universe.all_tickers():
-        df = provider.get_daily_bars(ticker)
+        try:
+            df = provider.get_daily_bars(ticker)
+        except Exception as e:
+            df = pd.DataFrame()
+            computed[ticker] = {"stage": None, "signal": "Hold", "strength": 0.0,
+                                "error": f"fetch failed: {type(e).__name__}: {e}"}
+            bars_cache[ticker] = df
+            continue
         bars_cache[ticker] = df
         if df.empty:
             computed[ticker] = {"stage": None, "signal": "Hold", "strength": 0.0,
