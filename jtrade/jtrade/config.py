@@ -83,6 +83,12 @@ class Settings:
         return _resolve(override) if override else self.project_root / "market-compass" / "current.yaml"
 
     @property
+    def tradingview_layout_id(self) -> str | None:
+        """Saved TradingView chart layout id for per-ticker chart links (tradingview.layout_id).
+        Missing/unset is fine — ticker links just don't render."""
+        return self.raw.get("tradingview", {}).get("layout_id")
+
+    @property
     def pending_orders_path(self) -> Path:
         return _resolve(self.execute["pending_orders"])
 

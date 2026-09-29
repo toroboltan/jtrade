@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import html
 from pathlib import Path
+from urllib.parse import quote
 
 import yaml
 
@@ -60,6 +61,25 @@ def _money(x: float) -> str:
     return f"${x:,.2f}"
 
 
+def _tv_url(ticker: str, layout_id: str) -> str:
+    sym = quote(ticker.strip().upper(), safe="")
+    return f"https://www.tradingview.com/chart/{layout_id}/?symbol={sym}"
+
+
+def _tkr_html(ticker: str, layout_id: str | None, css_class: str = "tkrname") -> str:
+    esc = html.escape(ticker)
+    if not layout_id:
+        return f'<span class="{css_class}">{esc}</span>'
+    url = html.escape(_tv_url(ticker, layout_id))
+    return f'<a class="{css_class}" href="{url}" target="_blank" rel="noopener">{esc}</a>'
+
+
+def _tkr_cell(tickers: str, layout_id: str | None, css_class: str = "tkrname") -> str:
+    """Render a (possibly comma-separated) ticker field as one link per symbol."""
+    parts = [t.strip() for t in tickers.split(",") if t.strip()]
+    return ", ".join(_tkr_html(t, layout_id, css_class) for t in parts)
+
+
 def _load_compass(settings: Settings) -> dict | None:
     path = settings.market_compass_file
     if not path.exists():
@@ -72,24 +92,26 @@ _LEAN_ICON = {"bullish": "▲", "bearish": "▼", "neutral": "●"}
 _SCENARIO_STAGE = {"Bull": "s2", "Base": "s3", "Bear": "s4"}
 
 
-def _compass(data: dict) -> str:
+def _compass(data: dict, layout_id: str | None) -> str:
     src = data.get("source", {})
     m = data.get("map", {})
     val = data.get("validation", {})
     concluded = val.get("concluded_scenario", "")
 
-    scenario_cards = "".join(
-        f"""
-        <div class="compass__scenario{' is-lead' if sc.get('name') == concluded else ''}">
+    def _scenario_card(sc: dict) -> str:
+        name = sc.get("name", "")
+        is_lead = bool(name) and concluded.startswith(name)
+        return f"""
+        <div class="compass__scenario{' is-lead' if is_lead else ''}">
           <div class="compass__sc-head">
-            <span class="compass__sc-name"><span class="dot {_SCENARIO_STAGE.get(sc.get('name'), 's1')}"></span>{html.escape(sc.get('name', ''))}</span>
+            <span class="compass__sc-name"><span class="dot {_SCENARIO_STAGE.get(name, 's1')}"></span>{html.escape(name)}</span>
             <span class="compass__sc-pct mono">{sc.get('probability', 0)}%</span>
           </div>
-          <div class="compass__sc-bar"><span class="{_SCENARIO_STAGE.get(sc.get('name'), 's1')}" style="width:{sc.get('probability', 0)}%"></span></div>
+          <div class="compass__sc-bar"><span class="{_SCENARIO_STAGE.get(name, 's1')}" style="width:{sc.get('probability', 0)}%"></span></div>
           <p class="compass__sc-summary">{html.escape(str(sc.get('summary', '')).strip())}</p>
         </div>"""
-        for sc in data.get("scenarios", [])
-    )
+
+    scenario_cards = "".join(_scenario_card(sc) for sc in data.get("scenarios", []))
 
     premise_items = "".join(
         f"""
@@ -101,7 +123,7 @@ def _compass(data: dict) -> str:
     )
 
     watch_rows = "".join(
-        f"""<tr><td class="c-tkr"><span class="tkrname">{html.escape(w.get('ticker', ''))}</span></td>
+        f"""<tr><td class="c-tkr">{_tkr_cell(w.get('ticker', ''), layout_id)}</td>
             <td>{html.escape(w.get('thesis', ''))}</td>
             <td><span class="pill pill--watch">{html.escape(w.get('status', ''))}</span></td></tr>"""
         for w in data.get("watchlist", [])
@@ -159,7 +181,7 @@ def _roadmap_legend() -> str:
 # --------------------------------------------------------------------------- #
 # fragments
 # --------------------------------------------------------------------------- #
-def _signal_card(p: Proposal, equity: float) -> str:
+def _signal_card(p: Proposal, equity: float, layout_id: str | None) -> str:
     entry, stop, limit = p.entry, p.stop_price or 0.0, p.limit_price
     stop_dist = (entry - stop) / entry * 100 if entry and stop else 0.0
     risk_pct = p.risk_amount / equity * 100 if equity else 0.0
@@ -169,7 +191,7 @@ def _signal_card(p: Proposal, equity: float) -> str:
       <article class="signal">
         <header class="signal__head">
           <div class="signal__id">
-            <span class="tkr">{html.escape(p.ticker)}</span>
+            {_tkr_html(p.ticker, layout_id, css_class="tkr")}
             <span class="signal__sheet">{html.escape(p.sheet)}</span>
           </div>
           <span class="pill pill--buy">BUY</span>
@@ -192,7 +214,7 @@ def _signal_card(p: Proposal, equity: float) -> str:
       </article>"""
 
 
-def _row(r: ScreenRow) -> str:
+def _row(r: ScreenRow, layout_id: str | None) -> str:
     monitor = not r.tradable
     cls = []
     if r.signal == "Buy":
@@ -226,6 +248,7 @@ def _row(r: ScreenRow) -> str:
     mon = ('<span class="montag" title="monitor-only — no order proposals">M</span>'
            if monitor else "")
     tkr = html.escape(r.ticker)
+    tkr_link = _tkr_html(r.ticker, layout_id)
     ma_cells = "".join(
         f'<td class="num mono{_ma_class(r.ma_diffs.get(key))}">{_fmt_change(r.ma_diffs.get(key))}</td>'
         for key, *_rest in MA_ROADMAP
@@ -233,7 +256,7 @@ def _row(r: ScreenRow) -> str:
     return (
         f'<tr class="{" ".join(cls)}" data-signal="{r.signal}" '
         f'data-stage="{r.stage or 0}" data-mon="{int(monitor)}" data-tkr="{tkr}">'
-        f'<td class="c-tkr"><span class="tkrname">{tkr}</span>{mon}</td>'
+        f'<td class="c-tkr">{tkr_link}{mon}</td>'
         f'<td class="num mono">{price}</td>'
         f'<td class="num mono{chg_cls}">{change}</td>'
         f'<td class="c-stage">{stage_cell}</td>'
@@ -241,12 +264,12 @@ def _row(r: ScreenRow) -> str:
     )
 
 
-def _panel(name: str, rows: list[ScreenRow]) -> str:
+def _panel(name: str, rows: list[ScreenRow], layout_id: str | None) -> str:
     counts = _stage_counts(rows)
     nsig = sum(1 for r in rows if r.signal in ("Buy", "Sell"))
     sig_badge = (f'<span class="panel__sig">{nsig} signal{"s" if nsig != 1 else ""}</span>'
                  if nsig else "")
-    body = "\n".join(_row(r) for r in rows)
+    body = "\n".join(_row(r, layout_id) for r in rows)
     esc = html.escape(name)
     return f"""
       <section class="panel" data-sheet="{esc}">
@@ -274,6 +297,7 @@ def _panel(name: str, rows: list[ScreenRow]) -> str:
 # --------------------------------------------------------------------------- #
 def render(result: ScreenResult, proposals: list[Proposal], equity: float,
            cash: float, settings: Settings) -> dict[str, Path]:
+    layout_id = settings.tradingview_layout_id
     all_rows = result.rows
     gcounts = _stage_counts(all_rows)
     gtotal = sum(gcounts.values())
@@ -286,16 +310,16 @@ def render(result: ScreenResult, proposals: list[Proposal], equity: float,
     buys = [p for p in proposals
             if p.action == "BUY" and not p.dropped and not p.reference_only and p.quantity > 0]
     if buys:
-        cards = "".join(_signal_card(p, equity) for p in buys)
+        cards = "".join(_signal_card(p, equity, layout_id) for p in buys)
     else:
         cards = ('<article class="signal signal--empty"><p>No actionable '
                  'Stage&nbsp;1&nbsp;→&nbsp;2 signals in this scan. The universe is '
                  'screened and reported below.</p></article>')
 
-    panels = "".join(_panel(name, rows) for name, rows in result.by_sheet.items())
+    panels = "".join(_panel(name, rows, layout_id) for name, rows in result.by_sheet.items())
 
     compass_data = _load_compass(settings)
-    compass_html = _compass(compass_data) if compass_data else ""
+    compass_html = _compass(compass_data, layout_id) if compass_data else ""
 
     date_part = result.generated_at.strftime("%Y-%m-%d")
     time_part = result.generated_at.strftime("%H:%M:%S")
@@ -568,6 +592,8 @@ main{max-width:1160px; margin:0 auto; padding:clamp(1.2rem,3vw,2.6rem) clamp(1re
 .signal__head{display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem}
 .signal__id{display:flex; align-items:baseline; gap:.6rem}
 .tkr{font-family:var(--font-mono); font-size:1.55rem; font-weight:700; letter-spacing:-.02em}
+a.tkr, a.tkrname{color:inherit; text-decoration:none}
+a.tkr:hover, a.tkrname:hover{color:var(--accent-ink); text-decoration:underline}
 .signal__sheet{font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--faint)}
 .signal__stage{display:flex; align-items:center; gap:.45rem; font-size:.82rem; color:var(--muted); margin-bottom:.9rem}
 .spec{display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem .4rem; margin:0 0 1rem}

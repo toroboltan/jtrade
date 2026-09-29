@@ -59,3 +59,6 @@ execute:
 report:
   out_dir: "reports"
   columns: ["TKT", "Price", "Change", "Stage", "Signal"]
+
+tradingview:
+  layout_id: "Ozf28sTe"   # saved chart layout; dashboard ticker links open ?symbol=<TKT> on it
