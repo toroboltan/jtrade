@@ -1,0 +1,171 @@
+source:
+  title: "Still Holding The Line"
+  author: "C.E. Kirk — Kirk's Opportunities"
+  published: "2026-09-20"
+  url: ""
+  week_label: "w39"
+
+map:
+  breakdown_target: 7550
+  range_low: 7615
+  range_high: 7750
+  breakout_target: "7816"
+  measured_move_target: 8003
+  deeper_downside_target: 7500
+
+scenarios:
+  - name: Bull
+    probability: 25
+    summary: >-
+      "Green Light": participation broadens (equal-weight, small- and mid-caps improve) while
+      the current leaders — semiconductors/memory (SMH, MU, SNDK, AMD, NVDA) and the
+      Magnificent 7 — hold up or extend. SMH's move above 573 gets confirmed with sustained
+      volume rather than another brief touch of resistance, software/cyber (IGV, CRWD, NET,
+      PANW, OKTA) starts a real follow-through, and credit (HYG) stabilizes. Exposure can be
+      increased selectively rather than broadly — not every indicator needs to turn favorable
+      on the same day.
+  - name: Base
+    probability: 50
+    summary: >-
+      "Yellow Light" — the newsletter's own stated read of the market right now. Leadership
+      stays selective: a handful of names (semiconductors/memory, Magnificent 7) keep the S&P
+      500 near its August high while the average stock remains weak (only 20%/28%/52% of
+      constituents above their 20-/50-/200-day averages, a 19.3% average rolling drawdown).
+      Strong individual stocks still offer opportunities inside a difficult market, but position
+      sizing should stay conservative and new commitments should require more price-action
+      confirmation, not enthusiasm about a rebound.
+  - name: Bear
+    probability: 25
+    summary: >-
+      "Red Light": weakness reaches the remaining leaders — semiconductors/memory or the
+      Magnificent 7 roll over — while credit (HYG) breaks down further, earnings expectations
+      soften, and the 7615-7620 recovered support fails to hold, reopening 7550 and then 7500.
+      Failed recoveries plus worsening credit would make reducing exposure more defensible than
+      continuing to explain away the evidence.
+
+decision_map:
+  - condition: "S&P 500 vs key levels (7615-7620 recovered support / 7700 first resistance / 7750 key hurdle / 7816 August-high breakout / 8003 conditional measured-move objective)"
+    read: "Friday's close at 7650.50 held the recovered 7615-7620 area centered on the June high. Holding that support preserves summer's breakout; losing it again would show the recovery lacks staying power. Above, 7700 is the first resistance, 7750 the more important test of the recent lower-high structure, and 7816 (August high) the breakout level; 8003 is a conditional measured-move objective, not a level the market owes us. On renewed weakness, 7550 then 7500 are the next references."
+  - condition: "Breadth beneath the index (% of stocks above 20-/50-/200-day averages, equal-weight, small/mid-cap participation)"
+    read: "Only 20% of S&P 500 stocks trade above their 20-day average, 28% above the 50-day, and 52% above the 200-day, with the average constituent down 19.3% on a rolling basis even as the index sits near its August high. Historical studies of this bad-breadth-near-a-high setup show below-random forward returns. The highest-value confirmation is the equal-weight S&P 500, small caps and mid-caps improving over several sessions while current leaders hold up — not just another strong index close."
+  - condition: "Rate problem vs oil (10-year near 5%, how far Fed tightening goes)"
+    read: "The Fed debate has moved from whether tightening begins to how far it goes; the first hike doesn't settle which path follows. Oil weakened Friday while the 10-year returned to ~5% — a sign oil may no longer explain the whole rates story, with Treasury supply and further-tightening expectations adding independent pressure. A 5% yield alone isn't an automatic sell signal; the damaging combination would be yields rising while earnings expectations, credit and leadership weaken together. This week's 2-/5-/7-year Treasury auctions and Fed commentary are the next tests."
+  - condition: "Earnings and valuation support"
+    read: "Q3 S&P 500 earnings growth is now projected at 28.9%, up from 26.7% at quarter-start, with 63% of guiding companies issuing positive outlooks — real support for the market, though concentrated (tech supplied 44 of 72 positive outlooks). Forward P/E actually fell from 20.4 to 19.1 since June 30 as estimates rose faster than price. Earnings growth is projected to slow in 2027, so returns need to lean on delivered profits rather than further multiple expansion."
+  - condition: "Semiconductor/AI leadership confirmation (SMH vs 573) vs software/cyber follow-through (IGV, CRWD, NET, PANW, OKTA)"
+    read: "Memory/storage (SNDK, MU) supplied the clearest momentum, AMD stood out, and NVDA looked constructively tight. The framework treats a move above 573 in SMH, on stronger volume, as a genuine confirmation test rather than just another touch of resistance. Software/cybersecurity weakened Friday — a setback, not a thesis-ender, but that group needs its own follow-through evidence separate from chips."
+  - condition: "Credit (HYG) confirmation or divergence"
+    read: "High-yield corporate bonds (HYG) closed Friday at 78.53, below its 10-, 20- and 50-day averages and retesting prior swing-low support even as speculative equities rallied — a divergence worth watching, not yet a systemic credit-crisis signal. Further weakness with widening spreads would strengthen the warning; stabilization would help support the equity recovery."
+  - condition: "Flow/positioning backdrop and Q4 seasonality"
+    read: "Near-term flows are unfavorable: buybacks fading into blackout periods (61% of S&P 500 weight blacked out by Sept 30), September OPEX has passed, and quarter-end pension rebalancing could add selling pressure — conditions for less dependable buying support, not a guaranteed decline. Q4 seasonality is typically more balanced/constructive, but roughly $300B of net Treasury issuance Oct-Dec against a depleted reverse-repo cushion is a competing headwind. September weakness doesn't automatically produce an October rally; price and participation need to confirm it."
+
+watchlist:
+  - ticker: MAGS
+    thesis: "Magnificent 7 ETF — still trying to break out per this week's chart, unconfirmed. Remains the key mega-cap-leadership tell."
+    status: "WATCH — key tell"
+  - ticker: SPY
+    thesis: "Price roadmap: hold recovered 7615-7620 support -> clear 7700 -> clear the more important 7750 hurdle -> breakout at 7816 (August high), with 8003 as a conditional measured-move objective. Invalidation: losing 7615-7620 again, then 7550/7500 on renewed weakness."
+    status: "WATCH"
+  - ticker: SMH
+    thesis: "Semiconductors — the newsletter's framework treats a move above 573 on stronger volume as a real confirmation test, not just another touch of resistance. Best outcome: this strength continues while participation improves elsewhere."
+    status: "OPPORTUNITY — confirm above 573 on volume"
+  - ticker: MU
+    thesis: "Memory/storage leadership; one of the clearest sources of momentum this week. Reports earnings Sept 30 — an important test of memory demand, pricing and leadership durability."
+    status: "OPPORTUNITY"
+  - ticker: SNDK
+    thesis: "Memory/storage leadership alongside MU; supplied some of the clearest momentum this week."
+    status: "OPPORTUNITY"
+  - ticker: AMD
+    thesis: "Stood out among semiconductors this week per the newsletter's review."
+    status: "OPPORTUNITY"
+  - ticker: NVDA
+    thesis: "Described as showing 'constructive tightening' — a healthier consolidation than a breakdown."
+    status: "WATCH"
+  - ticker: RSP
+    thesis: "S&P Equal Weight — the newsletter's own preferred breadth confirmation: wants better equal-weight performance alongside the current leaders holding up, not just another strong cap-weighted index close."
+    status: "WATCH — breadth confirmation"
+  - ticker: HYG
+    thesis: "High-yield corporate bonds closed Friday below their 10-/20-/50-day averages, retesting prior swing-low support even as speculative equities rallied — a credit/equity divergence worth watching, not yet a systemic warning."
+    status: "WATCH — credit divergence"
+  - ticker: IGV
+    thesis: "Software — weakened Friday alongside CRWD/NET/PANW/OKTA; needs its own follow-through confirmation, separate from the semiconductor story."
+    status: "WATCH — needs confirmation"
+
+validation:
+  as_of: "2026-09-21"
+  concluded_scenario: "Base (Yellow Light) — selective leadership still holding the index; SMH's breakout trigger cleared today, but breadth/credit/software haven't confirmed yet"
+  concluded_note: >-
+    IB Gateway connected (account U1169748, net liq $6,625.78) and market data
+    subscriptions are live. A full jtrade scan (205 symbols, 0 buy / 0 sell
+    signals) plus targeted IBKR snapshots for names outside the monitor
+    workbook (MAGS, MU, SNDK, AMD, HYG, IGV, CRWD, NET, PANW, OKTA) cover
+    every point the newsletter raised. SPY traded at $773.50 (+1.55% today),
+    consistent with a reported cash S&P close near 7,764.70 (+1.49%) —
+    comfortably above the 7615-7620 recovered support the newsletter flagged
+    as the line in the sand, and now through both the 7700 and 7750 hurdles
+    it described, leaving the 7816 August high as the next real test. The
+    single most notable development: SMH closed at $596.03 (+4.02%), decisively
+    above the newsletter's own 573 confirmation trigger — a genuine signal per
+    its own framework, though it explicitly wants that held "with stronger
+    volume" over more than one session before treating it as durable. The
+    rest of the semiconductor/memory cohort participated — MU +0.45% (to
+    $1,048.68), SNDK +0.97% ($1,783.76), AMD +0.86% ($620.79), NVDA +2.30%
+    ($227.38) — while MAGS itself stayed flat (-0.05%, $72.93), still "trying
+    to break out" exactly as the newsletter described, unconfirmed. Software/
+    cyber, which the letter said weakened Friday and "needs to demonstrate
+    buyers can sustain a recovery," stayed muted today rather than reversing:
+    IGV -0.26%, CRWD -0.28%, PANW -0.20%, against only small offsetting gains
+    in NET +0.32% and OKTA +0.14% — no real follow-through yet, consistent
+    with chips working while the rest of tech does not. Credit was similarly
+    unconvincing: HYG traded at $78.68, essentially flat versus Friday's
+    $78.53 close and still flagged Stage 4 · Decline on our own screen — a
+    marginal uptick, not the stabilization that would ease the newsletter's
+    warning. On the macro side, oil extended Friday's weakness (IBKR USO
+    -3.68%, XLE -2.88% today) while the 10-year sat at the ~5% level the
+    letter flagged as newly significant in its own right (bond ETFs IEF
+    +0.39%/TLT +0.68% today imply a modest intraday easing rather than a
+    fresh push higher). Sector-level breadth actually improved today (~7 of
+    11 S&P sector ETFs advanced), but that is not the same test the
+    newsletter is asking for — it wants the equal-weight index, small- and
+    mid-caps to reclaim support over several sessions, and today's RSP
+    (+0.18%) was only a modest, unconfirmed step in that direction. The
+    newsletter's own structural breadth stats (20%/28%/52% of S&P 500 stocks
+    above their 20-/50-/200-day averages, 19.3% average rolling drawdown) are
+    Friday-dated facts our own 205-symbol universe can't independently
+    recompute for the full index; they stand as sourced context rather than
+    something we've verified ourselves. Net: this reads as the newsletter's
+    own "Yellow Light" — one real, dated confirmation (SMH > 573) sitting
+    inside an otherwise unchanged cautious backdrop (breadth, credit,
+    software all still pending their own confirmation) — not yet the "Green
+    Light" that would justify broadening exposure.
+  premises:
+    - label: "S&P 500 vs key levels (7615-7620 support / 7700 / 7750 / 7816 breakout / 8003 conditional)"
+      lean: bullish
+      detail: "SPY $773.50 (+1.55% today), consistent with a reported cash close near 7,764.70 (+1.49%) — comfortably clear of the 7615-7620 support and through both the 7700 and 7750 hurdles the newsletter described. 7816 (August high) is the next real test; 8003 stays conditional."
+    - label: "Breadth beneath the index (% above MAs, equal-weight, small/mid-cap)"
+      lean: bearish
+      detail: "Newsletter's Friday-dated stats (20%/28%/52% of S&P 500 above 20-/50-/200-day averages, 19.3% average rolling drawdown) can't be independently recomputed from our 205-symbol universe. Today's own read is mixed: sector breadth improved (~7/11 advancing) but RSP (+0.18%) — the newsletter's preferred confirmation — was only a modest, unconfirmed step, not the multi-session broadening it's asking for."
+    - label: "Rate problem vs oil (10-year near 5%)"
+      lean: neutral
+      detail: "Oil extended its slide today (IBKR USO -3.68%, XLE -2.88%), continuing to ease the pressure the newsletter flagged. The 10-year sat at ~5% Friday — the level the letter called newly significant in its own right, separate from oil — and bond ETFs (IEF +0.39%, TLT +0.68%) suggest a modest intraday easing rather than a fresh push toward higher yields. Tue-Thu Treasury auctions are the next real test."
+    - label: "Earnings and valuation support"
+      lean: bullish
+      detail: "Unchanged since Friday: Q3 S&P 500 earnings growth now projected at 28.9% (up from 26.7%), 63% of guiding companies positive, forward P/E down to 19.1 from 20.4 since June 30. Real but concentrated support (tech supplied 44 of 72 positive outlooks); no new data point today."
+    - label: "Semiconductor/AI confirmation (SMH vs 573) vs software/cyber follow-through"
+      lean: bullish
+      detail: "SMH closed $596.03 (+4.02%), decisively above the newsletter's 573 confirmation trigger, with MU +0.45%, SNDK +0.97%, AMD +0.86% and NVDA +2.30% participating. Software/cyber stayed muted rather than reversing (IGV -0.26%, CRWD -0.28%, PANW -0.20%, NET +0.32%, OKTA +0.14%) — chips confirming, the rest of tech still pending its own test."
+    - label: "Credit (HYG) confirmation or divergence"
+      lean: bearish
+      detail: "HYG $78.68, essentially flat versus Friday's $78.53 close and still Stage 4 · Decline on our own screen. A marginal uptick, not the stabilization that would ease the newsletter's credit warning; the equity/credit divergence it flagged persists."
+    - label: "Flow/positioning backdrop and Q4 seasonality"
+      lean: bearish
+      detail: "Unchanged structural backdrop — buyback blackouts building toward 61% of S&P 500 weight by Sept 30, OPEX has passed, quarter-end pension rebalancing ahead, and ~$300B of Q4 Treasury issuance against a depleted reverse-repo cushion. No new data point today; still a background headwind rather than a live trigger."
+  next_catalysts:
+    - "Does participation broaden — equal-weight (RSP), small- and mid-cap improvement over several sessions — while today's leaders (SMH, MU, SNDK, AMD, NVDA) hold up, or does today's SMH>573 confirmation stay isolated to chips"
+    - "Does SMH hold above 573 with continued volume over the coming sessions, rather than today being a single strong print"
+    - "Tue-Thu 2-/5-/7-year Treasury auctions plus Fed commentary — the next real test of bond demand and rate expectations, tracked separately from oil"
+    - "Wed 9/23 September Flash PMIs (new orders, hiring, input/selling prices), Thu jobless claims + new-home sales, Fri durable-goods orders + final consumer sentiment"
+    - "Corporate commentary check: Tue AZO/KBH, Wed CTAS/PAYX/GIS, Thu COST/DRI — listening for demand, pricing and margin commentary, not just beats; watch for a widening pattern of warnings like NSC/JBHT/NUE/airlines"
+    - "Meta Connect (Sep 23-24), Okta's investor event, and the planned Thursday U.S.-China summit — separating substantive changes to supply chains/market access from encouraging language that changes nothing"
+    - "HYG: does it stabilize (supports the equity recovery) or weaken further with widening spreads (strengthens the credit warning)"
+    - "MU reports Sept 30 — outside this week's window, but the next real test of memory demand, pricing and leadership durability"
